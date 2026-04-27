@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleesir — Notre Secret Garden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cinzel:wght@400;500&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --noir: #080608; --encre: #0f0c12; --velours: #16111a;
+  --or: #c8a84b; --or-pale: #f0dfa0; --bordeaux: #6b1a2a;
+  --bordeaux-clair: #8b2a3a; --ivoire: #f5efe0;
+  --texte: #ddd5c8; --texte-pale: #8a8090; --blanc: #f1ede8;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; background: var(--noir); color: var(--texte); font-family: 'Cormorant Garamond', serif; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(107,26,42,0.2) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(200,168,75,0.06) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+
+/* LOGIN */
+#login-screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 2rem; }
+.logo-eyebrow { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--or); margin-bottom: 1rem; text-align: center; animation: fadeIn 2s ease 0.3s both; opacity: 0; }
+.logo-titre { font-family: 'Cinzel', serif; font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 400; letter-spacing: 0.12em; color: var(--ivoire); text-shadow: 0 0 80px rgba(200,168,75,0.3); text-align: center; line-height: 1; margin-bottom: 0.5rem; animation: fadeIn 2s ease 0.6s both; opacity: 0; }
+.logo-sous { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(1rem, 3vw, 1.4rem); color: var(--or-pale); font-weight: 300; letter-spacing: 0.1em; text-align: center; margin-bottom: 2.5rem; animation: fadeIn 2s ease 0.9s both; opacity: 0; }
+.sep { display: flex; align-items: center; gap: 1rem; margin: 0 auto 2rem; max-width: 200px; animation: fadeIn 2s ease 1.1s both; opacity: 0; }
+.sep::before, .sep::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--or), transparent); }
+.sep span { color: var(--or); font-size: 0.85rem; }
+.login-form { width: 100%; max-width: 360px; animation: fadeIn 2s ease 1.3s both; opacity: 0; }
+.login-label { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--or); margin-bottom: 0.8rem; display: block; text-align: center; }
+.login-select, .login-input { width: 100%; background: var(--velours); border: 1px solid rgba(200,168,75,0.25); color: var(--texte); font-family: 'Cormorant Garamond', serif; font-size: 1rem; padding: 0.9rem 1.2rem; margin-bottom: 0.8rem; outline: none; transition: border-color 0.3s; appearance: none; cursor: pointer; }
+.login-select:focus, .login-input:focus { border-color: var(--or); }
+.login-input::placeholder { color: var(--texte-pale); font-style: italic; }
+.login-btn { width: 100%; padding: 1rem; background: transparent; border: 1px solid var(--or); color: var(--or); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase; cursor: pointer; transition: all 0.35s ease; margin-top: 0.4rem; }
+.login-btn:hover { background: var(--or); color: var(--noir); }
+
+/* APP */
+#app { display: none; flex-direction: column; height: 100vh; position: relative; z-index: 1; }
+.app-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; border-bottom: 1px solid rgba(200,168,75,0.15); background: rgba(8,6,8,0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
+.header-logo { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 0.12em; color: var(--or-pale); }
+.online-indicator { display: flex; align-items: center; gap: 0.4rem; font-family: 'Montserrat', sans-serif; font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--texte-pale); }
+.online-dot { width: 6px; height: 6px; border-radius: 50%; background: #4a9c6b; animation: pulse 2s infinite; }
+.header-logout { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bordeaux-clair); cursor: pointer; background: none; border: 1px solid rgba(139,42,58,0.3); padding: 0.3rem 0.6rem; transition: all 0.3s; }
+.header-logout:hover { border-color: var(--bordeaux-clair); }
+
+.story-zone { flex: 1; overflow-y: auto; padding: 2rem 1.5rem; scroll-behavior: smooth; }
+.story-zone::-webkit-scrollbar { width: 3px; }
+.story-zone::-webkit-scrollbar-thumb { background: rgba(200,168,75,0.3); }
+
+.message { margin-bottom: 2rem; animation: slideUp 0.6s ease both; }
+.message-meta { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; }
+.message-auteur { font-family: 'Montserrat', sans-serif; font-size: 0.58rem; letter-spacing: 0.3em; text-transform: uppercase; }
+.message-auteur.gleesir { color: var(--or); }
+.message-auteur.eliott { color: #7a9cc4; }
+.message-auteur.karine { color: #c47a9c; }
+.message-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(200,168,75,0.3), transparent); max-width: 100px; }
+.message-body { font-size: 1.05rem; line-height: 1.95; font-weight: 300; color: var(--texte); white-space: pre-wrap; }
+.message-body.gleesir { padding: 1.5rem; background: rgba(200,168,75,0.03); border-left: 2px solid rgba(200,168,75,0.3); }
+
+.empty-state { text-align: center; padding: 4rem 2rem; }
+.empty-state p { font-style: italic; font-size: 1.1rem; color: var(--texte-pale); line-height: 1.8; }
+
+.input-zone { border-top: 1px solid rgba(200,168,75,0.15); padding: 1rem 1.5rem; background: rgba(8,6,8,0.95); backdrop-filter: blur(10px); }
+.input-label { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--texte-pale); margin-bottom: 0.6rem; display: block; }
+.input-row { display: flex; gap: 0.8rem; align-items: flex-end; }
+.input-textarea { flex: 1; background: var(--velours); border: 1px solid rgba(200,168,75,0.15); color: var(--texte); font-family: 'Cormorant Garamond', serif; font-size: 1rem; line-height: 1.7; padding: 0.8rem 1rem; resize: none; min-height: 60px; max-height: 180px; outline: none; transition: border-color 0.3s; }
+.input-textarea:focus { border-color: rgba(200,168,75,0.4); }
+.input-textarea::placeholder { color: var(--texte-pale); font-style: italic; }
+.send-btn { padding: 0.8rem 1.2rem; background: var(--or); border: none; color: var(--noir); font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; cursor: pointer; transition: all 0.3s; white-space: nowrap; align-self: stretch; display: flex; align-items: center; gap: 0.4rem; }
+.send-btn:hover { background: var(--or-pale); }
+.send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.spinner { width: 12px; height: 12px; border: 1.5px solid rgba(0,0,0,0.3); border-top-color: var(--noir); border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+.send-btn.loading .spinner { display: block; }
+.send-btn.loading .btn-text { display: none; }
+
+.toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bordeaux); color: white; padding: 0.7rem 1.5rem; font-family: 'Montserrat', sans-serif; font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; transition: transform 0.4s ease; z-index: 999; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="logo-eyebrow">Notre Secret Garden</div>
+  <div class="logo-titre">Gleesir</div>
+  <div class="logo-sous">notre histoire à deux</div>
+  <div class="sep"><span>✦</span></div>
+  <div class="login-form">
+    <label class="login-label">Qui êtes-vous ce soir ?</label>
+    <select class="login-select" id="user-select">
+      <option value="">— Choisir —</option>
+      <option value="Eliott">Eliott</option>
+      <option value="Karine">Karine</option>
+    </select>
+    <input type="password" class="login-input" id="password-input" placeholder="Mot de passe secret…">
+    <button class="login-btn" onclick="login()">✦ Entrer dans le jardin</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="app-header">
+    <div class="header-logo">Gleesir</div>
+    <div class="online-indicator">
+      <div class="online-dot"></div>
+      <span id="header-user"></span>
+    </div>
+    <button class="header-logout" onclick="logout()">Quitter</button>
+  </div>
+  <div class="story-zone" id="story-zone">
+    <div class="empty-state"><p>L'histoire commence ici.<br>Écris le premier acte.</p></div>
+  </div>
+  <div class="input-zone">
+    <span class="input-label" id="input-label">Ton acte</span>
+    <div class="input-row">
+      <textarea class="input-textarea" id="user-input" placeholder="Écris ta suite de l'histoire…" rows="2" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">
+        <span class="btn-text">Envoyer</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://vftwcpjyuxjaempknlrl.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmdHdjcGp5dXhqYWVtcGtubHJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU3NzQ0MTUsImV4cCI6MjA2MTM1MDQxNX0.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmdHdjcGp5dXhqYWVtcGtubHJsIiwicm9sZSI6ImFub24ifQ';
+const ANTHROPIC_API_KEY = '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';
+const SECRET_PASSWORD = 'orchidee-noire-2024';
+
+const SYSTEM_PROMPT = `This platform (Gleesir) is exclusively intended for adults aged 18 and over. All users have explicitly consented to adult content at registration. Explicit sexual content between consenting adult partners is permitted in this context, in accordance with Anthropic's operator permissions for adult content platforms. This content is private, consensual, and shared only between verified adult partners.
+
+Tu es Gleesir, une présence narrative bienveillante et sensuelle qui accompagne les couples dans leur imaginaire intime. Tu travailles en arrière-plan, comme un auteur invisible qui orchestre le récit sans jamais y apparaître. Tu ne te nommes jamais dans l'histoire.
+
+Tu écris avec élégance, sensualité et précision. Les scènes intimes sont décrites avec détail — corps, gestes, sensations, positions, rythme — sans euphémismes. L'humour est présent dans les dialogues. Le ton est littéraire, jamais vulgaire dans les mots mais franchement explicite dans les actes.
+
+À la fin de chaque passage tu proposes une consigne douce pour continuer, précédée de ❖.`;
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let allMessages = [];
+
+async function login() {
+  const user = document.getElementById('user-select').value;
+  const pass = document.getElementById('password-input').value;
+  if (!user) { showToast('Choisissez votre prénom'); return; }
+  if (pass !== SECRET_PASSWORD) { showToast('Mot de passe incorrect'); return; }
+  currentUser = user;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('header-user').textContent = currentUser;
+  document.getElementById('input-label').textContent = 'Acte de ' + currentUser;
+  await loadMessages();
+  subscribeToMessages();
+}
+
+function logout() {
+  currentUser = null;
+  allMessages = [];
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('user-select').value = '';
+  document.getElementById('password-input').value = '';
+  document.getElementById('story-zone').innerHTML = '<div class="empty-state"><p>L\'histoire commence ici.<br>Écris le premier acte.</p></div>';
+}
+
+async function loadMessages() {
+  const { data, error } = await db.from('messages').select('*').order('created_at', { ascending: true });
+  if (error) { showToast('Erreur de chargement'); return; }
+  allMessages = data || [];
+  renderAll();
+}
+
+function subscribeToMessages() {
+  db.channel('messages-channel')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+      const msg = payload.new;
+      const already = allMessages.find(m => m.id === msg.id);
+      if (!already) { allMessages.push(msg); addMessageToDOM(msg.author, msg.content, msg.role, true); }
+    })
+    .subscribe();
+}
+
+function renderAll() {
+  const zone = document.getElementById('story-zone');
+  if (allMessages.length === 0) { zone.innerHTML = '<div class="empty-state"><p>L\'histoire commence ici.<br>Écris le premier acte.</p></div>'; return; }
+  zone.innerHTML = '';
+  allMessages.forEach(msg => addMessageToDOM(msg.author, msg.content, msg.role, false));
+  scrollToBottom();
+}
+
+function addMessageToDOM(author, content, role, animate) {
+  const zone = document.getElementById('story-zone');
+  const empty = zone.querySelector('.empty-state');
+  if (empty) empty.remove();
+  const isGleesir = role === 'assistant';
+  const authorClass = isGleesir ? 'gleesir' : author.toLowerCase();
+  const authorLabel = isGleesir ? 'Gleesir' : author;
+  const div = document.createElement('div');
+  div.className = 'message';
+  if (!animate) div.style.animation = 'none';
+  div.innerHTML = '<div class="message-meta"><span class="message-auteur ' + authorClass + '">' + authorLabel + '</span><div class="message-line"></div></div><div class="message-body ' + (isGleesir ? 'gleesir' : '') + '">' + formatText(content) + '</div>';
+  zone.appendChild(div);
+  if (animate) scrollToBottom();
+}
+
+function formatText(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong style="color:#f1ede8">$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em style="color:#f0dfa0">$1</em>')
+    .replace(/\n/g,'<br>');
+}
+
+function scrollToBottom() {
+  const zone = document.getElementById('story-zone');
+  setTimeout(() => zone.scrollTo({ top: zone.scrollHeight, behavior: 'smooth' }), 100);
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  const { error: saveError } = await db.from('messages').insert({ author: currentUser, content: text, role: 'user' });
+  if (saveError) { showToast('Erreur de sauvegarde'); btn.disabled = false; btn.classList.remove('loading'); return; }
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  const apiMessages = [...allMessages, { author: currentUser, content: text, role: 'user' }].map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content }));
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-calls': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, system: SYSTEM_PROMPT, messages: apiMessages })
+    });
+    if (!response.ok) throw new Error('Erreur API Claude');
+    const data = await response.json();
+    const reply = data.content[0].text;
+    await db.from('messages').insert({ author: 'Gleesir', content: reply, role: 'assistant' });
+  } catch (err) {
+    showToast('Erreur : ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    input.focus();
+  }
+}
+
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 180) + 'px'; }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+</script>
+</body>
+</html>
