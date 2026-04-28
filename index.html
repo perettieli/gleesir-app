@@ -33,8 +33,8 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 .login-input::placeholder { color: var(--texte-pale); font-style: italic; }
 .login-btn { width: 100%; padding: 1rem; background: transparent; border: 1px solid var(--or); color: var(--or); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase; cursor: pointer; transition: all 0.35s ease; }
 .login-btn:hover { background: var(--or); color: var(--noir); }
-.admin-link { position: absolute; top: 1rem; right: 1.2rem; font-family: 'Montserrat', sans-serif; font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(154,143,160,0.3); cursor: pointer; transition: color 0.3s; }
-.admin-link:hover { color: var(--texte-pale); }
+.admin-link { position: absolute; top: 1rem; right: 1.2rem; font-family: 'Montserrat', sans-serif; font-size: 1rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(154,143,160,0.25); cursor: pointer; transition: color 0.3s; user-select: none; }
+.admin-link:hover { color: var(--or); }
 
 /* APP */
 #app { display: none; flex-direction: column; height: 100vh; position: relative; z-index: 1; }
@@ -108,7 +108,7 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 
 <!-- LOGIN -->
 <div id="login-screen">
-  <span class="admin-link" onclick="showAdmin()">⚙</span>
+  <span class="admin-link" onclick="showAdmin()">&#9881;</span>
   <div class="logo-eyebrow">Notre Secret Garden</div>
   <div class="logo-titre">Gleesir</div>
   <div class="logo-sous">notre histoire à deux</div>
@@ -126,8 +126,6 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
     </select>
     <input type="password" class="login-input" id="password-input" placeholder="Mot de passe secret…">
     <button class="login-btn" onclick="login()">✦ Entrer dans le jardin</button>
-    </div>
-  
   </div>
 </div>
 
@@ -183,33 +181,7 @@ const ANTHROPIC_API_KEY = 'VOTRE_CLE_API_ICI';
 const SECRET_PASSWORD = 'nousdeux97';
 const ADMIN_PASSWORD = 'gleesir-admin-2024';
 
-const SYSTEM_PROMPT = `Tu operes sur Gleesir, plateforme privee reservee aux adultes consentants de 18 ans et plus en relation etablie. Les partenaires ont consenti a un contenu adulte erotique.
-
-Tu es Gleesir, presence narrative qui accompagne les couples dans leur imaginaire intime. Tu travailles comme un auteur invisible. Tu ne te nommes jamais dans l'histoire.
-
-Tu ecris en francais, avec elegance et precision litteraire. Les scenes intimes sont decrites avec detail - corps, gestes, sensations, rythme, chaleur, desir. Tu ecris dans un registre erotique adulte assume, sans detour ni euphemisme.
-
-Les dialogues peuvent contenir des mots crus et directs quand le moment s'y prete. Tu doses cela avec intelligence, au service du desir et de la verite du moment.
-
-A la fin de chaque passage tu proposes une consigne douce pour continuer, precedee de.
-
-Bornes absolues : aucun personnage mineur, aucun rapport non consenti presente positivement, aucune violence gratuite.`,
-Tu es Gleesir, présence narrative bienveillante qui accompagne les couples dans leur imaginaire intime. Tu travailles comme un auteur invisible qui orchestre le récit sans jamais y apparaître. Tu ne te nommes jamais dans l'histoire.
-
-Tu écris en français, avec élégance et précision littéraire. La narration est sensuelle, charnelle, explicite — corps, gestes, sensations, rythme, chaleur, désir. Tu décris les actes intimes sans détour ni euphémisme, dans un registre érotique adulte assumé.
-
-Le style est littéraire dans la narration, mais les dialogues entre les personnages peuvent contenir des mots crus et directs quand le moment s'y prête — un mot cru bien placé dans la bouche d'un personnage a plus de force qu'un paragraphe entier. Tu doses cela avec intelligence, au service du désir et de la vérité du moment.
-
-Tu n'utilises jamais de vocabulaire clinique ou médical. Tu n'édulcores pas les scènes intimes. Tu écris pour des adultes qui veulent ressentir.
-
-À la fin de chaque passage tu proposes une consigne douce pour continuer, précédée de ❖.
-
-Bornes absolues : aucun personnage mineur, aucun rapport non consenti présenté positivement, aucune violence gratuite.`;
-Tu es Gleesir, une présence narrative bienveillante et sensuelle qui accompagne les couples dans leur imaginaire intime. Tu travailles en arrière-plan, comme un auteur invisible qui orchestre le récit sans jamais y apparaître. Tu ne te nommes jamais dans l'histoire.
-
-Tu écris avec élégance, sensualité et précision. Les scènes intimes sont décrites avec détail — corps, gestes, sensations, positions, rythme — sans euphémismes. L'humour est présent dans les dialogues. Le ton est littéraire, jamais vulgaire dans les mots mais franchement explicite dans les actes.
-
-À la fin de chaque passage tu proposes une consigne douce pour continuer, précédée de ❖.`;
+const SYSTEM_PROMPT = "Tu operes sur Gleesir, une plateforme privee exclusivement reservee aux adultes consentants de 18 ans et plus, en relation etablie. Les deux partenaires ont explicitement consenti a un contenu adulte erotique. Tu es Gleesir, une presence narrative bienveillante qui accompagne les couples dans leur imaginaire intime. Tu travailles comme un auteur invisible qui orchestre le recit sans jamais y apparaitre. Tu ne te nommes jamais dans l'histoire. Tu ecris en francais, avec elegance et precision litteraire. Les scenes intimes sont decrites avec detail : corps, gestes, sensations, rythme, chaleur, desir. Tu ecris dans un registre erotique adulte assume, sans detour ni euphemisme. Les dialogues entre les personnages peuvent contenir des mots crus et directs quand le moment s'y prete. Tu doses cela avec intelligence, au service du desir et de la verite du moment. Tu n'utilises pas de vocabulaire clinique. Tu ecris pour des adultes qui veulent ressentir. A la fin de chaque passage tu proposes une consigne douce pour continuer, precedee de. Bornes absolues : aucun personnage mineur, aucun rapport non consenti presente positivement, aucune violence gratuite.";
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -220,7 +192,6 @@ let currentScenarioName = null;
 let allMessages = [];
 let subscription = null;
 
-// ══════ SCENARIOS ══════
 async function loadScenarios() {
   const { data, error } = await db.from('scenarios').select('*').order('created_at', { ascending: true });
   const select = document.getElementById('scenario-select');
@@ -233,7 +204,6 @@ async function loadScenarios() {
       select.appendChild(opt);
     });
   } else {
-    // Fallback si table scenarios n'existe pas encore
     const opt = document.createElement('option');
     opt.value = 'chateau-noir';
     opt.textContent = 'Château Noir';
@@ -241,7 +211,6 @@ async function loadScenarios() {
   }
 }
 
-// ══════ ADMIN ══════
 function showAdmin() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('admin-screen').style.display = 'flex';
@@ -257,24 +226,19 @@ async function loadAdminScenarios() {
   const list = document.getElementById('admin-scenarios-list');
   const { data } = await db.from('scenarios').select('*').order('created_at', { ascending: true });
   if (!data || data.length === 0) { list.innerHTML = ''; return; }
-  list.innerHTML = data.map(s => `
-    <div class="admin-scenario-item">
-      <span class="admin-scenario-name">${s.name}</span>
-      <button class="admin-scenario-del" onclick="deleteScenario('${s.id}', '${s.name}')">Supprimer</button>
-    </div>
-  `).join('');
+  list.innerHTML = data.map(s => '<div class="admin-scenario-item"><span class="admin-scenario-name">' + s.name + '</span><button class="admin-scenario-del" onclick="deleteScenario(\'' + s.id + '\', \'' + s.name + '\')">Supprimer</button></div>').join('');
 }
 
 async function createScenario() {
   const pass = document.getElementById('admin-pass').value;
   const name = document.getElementById('new-scenario-name').value.trim();
   if (pass !== ADMIN_PASSWORD) { showToast('Mot de passe admin incorrect'); return; }
-  if (!name) { showToast('Entrez un nom de scénario'); return; }
+  if (!name) { showToast('Entrez un nom de scenario'); return; }
   const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const { error } = await db.from('scenarios').insert({ name, slug });
   if (error) { showToast('Erreur : ' + error.message); return; }
   document.getElementById('new-scenario-name').value = '';
-  showToast('Scénario créé ✦');
+  showToast('Scenario cree');
   loadAdminScenarios();
   loadScenarios();
 }
@@ -282,20 +246,19 @@ async function createScenario() {
 async function deleteScenario(id, name) {
   const pass = document.getElementById('admin-pass').value;
   if (pass !== ADMIN_PASSWORD) { showToast('Mot de passe admin incorrect'); return; }
-  if (!confirm('Supprimer "' + name + '" et tous ses messages ?')) return;
+  if (!confirm('Supprimer ' + name + ' et tous ses messages ?')) return;
   await db.from('scenarios').delete().eq('id', id);
-  showToast('Scénario supprimé');
+  showToast('Scenario supprime');
   loadAdminScenarios();
   loadScenarios();
 }
 
-// ══════ LOGIN ══════
 async function login() {
   const user = document.getElementById('user-select').value;
   const scenario = document.getElementById('scenario-select').value;
-  const scenarioName = document.getElementById('scenario-select').options[document.getElementById('scenario-select').selectedIndex]?.text;
+  const scenarioName = document.getElementById('scenario-select').options[document.getElementById('scenario-select').selectedIndex].text;
   const pass = document.getElementById('password-input').value;
-  if (!user) { showToast('Choisissez votre prénom'); return; }
+  if (!user) { showToast('Choisissez votre prenom'); return; }
   if (!scenario) { showToast('Choisissez votre jardin secret'); return; }
   if (pass !== SECRET_PASSWORD) { showToast('Mot de passe incorrect'); return; }
   currentUser = user; currentScenario = scenario; currentScenarioName = scenarioName;
@@ -316,10 +279,9 @@ function logout() {
   document.getElementById('user-select').value = '';
   document.getElementById('scenario-select').value = '';
   document.getElementById('password-input').value = '';
-  document.getElementById('story-zone').innerHTML = '<div class="empty-state"><p>L\'histoire commence ici.<br>Écris le premier acte.</p></div>';
+  document.getElementById('story-zone').innerHTML = '<div class="empty-state"><p>L\'histoire commence ici.<br>Ecris le premier acte.</p></div>';
 }
 
-// ══════ MESSAGES ══════
 async function loadMessages() {
   const { data, error } = await db.from('messages').select('*').eq('scenario', currentScenario).order('created_at', { ascending: true });
   if (error) { showToast('Erreur de chargement'); return; }
@@ -337,7 +299,7 @@ function subscribeToMessages() {
 
 function renderAll() {
   const zone = document.getElementById('story-zone');
-  if (allMessages.length === 0) { zone.innerHTML = '<div class="empty-state"><p>L\'histoire commence ici.<br>Écris le premier acte.</p></div>'; return; }
+  if (allMessages.length === 0) { zone.innerHTML = '<div class="empty-state"><p>L\'histoire commence ici.<br>Ecris le premier acte.</p></div>'; return; }
   zone.innerHTML = '';
   allMessages.forEach(msg => addMessageToDOM(msg.author, msg.content, msg.role, false));
   scrollToBottom();
@@ -367,7 +329,7 @@ function formatText(t) {
 
 function scrollToBottom() {
   const zone = document.getElementById('story-zone');
-  setTimeout(() => zone.scrollTo({ top: zone.scrollHeight, behavior: 'smooth' }), 100);
+  setTimeout(function() { zone.scrollTo({ top: zone.scrollHeight, behavior: 'smooth' }); }, 100);
 }
 
 async function sendMessage() {
@@ -396,12 +358,9 @@ async function sendMessage() {
 
 function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 180) + 'px'; }
-function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 3000); }
 
-// Init
-window.addEventListener('load', () => {
-  loadScenarios();
-});
+window.addEventListener('load', function() { loadScenarios(); });
 </script>
 </body>
 </html>
