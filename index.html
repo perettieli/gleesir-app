@@ -33,7 +33,7 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 .login-input::placeholder { color: var(--texte-pale); font-style: italic; }
 .login-btn { width: 100%; padding: 1rem; background: transparent; border: 1px solid var(--or); color: var(--or); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase; cursor: pointer; transition: all 0.35s ease; }
 .login-btn:hover { background: var(--or); color: var(--noir); }
-.admin-link { display: block; text-align: center; margin-top: 1.5rem; font-family: 'Montserrat', sans-serif; font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(154,143,160,0.3); cursor: pointer; transition: color 0.3s; }
+.admin-link { position: absolute; top: 1rem; right: 1.2rem; font-family: 'Montserrat', sans-serif; font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(154,143,160,0.3); cursor: pointer; transition: color 0.3s; }
 .admin-link:hover { color: var(--texte-pale); }
 
 /* APP */
@@ -108,6 +108,7 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 
 <!-- LOGIN -->
 <div id="login-screen">
+  <span class="admin-link" onclick="showAdmin()">⚙</span>
   <div class="logo-eyebrow">Notre Secret Garden</div>
   <div class="logo-titre">Gleesir</div>
   <div class="logo-sous">notre histoire à deux</div>
@@ -125,7 +126,8 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
     </select>
     <input type="password" class="login-input" id="password-input" placeholder="Mot de passe secret…">
     <button class="login-btn" onclick="login()">✦ Entrer dans le jardin</button>
-    <span class="admin-link" onclick="showAdmin()">⚙</span>
+    </div>
+  
   </div>
 </div>
 
