@@ -20,8 +20,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
-        system,
-        messages
+system: system || "Tu es l'assistant de Gleesir, un jardin secret pour les couples. Tu réponds toujours en français, avec un ton chaleureux, poétique et bienveillant. Tu accompagnes les couples dans leur jeu narratif partagé.",        messages
       })
     });
 
